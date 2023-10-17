@@ -1,64 +1,83 @@
-'use strict';
-const utils = require('./utils');
-const webpack = require('webpack');
-const config = require('../config');
-const merge = require('webpack-merge');
-const path = require('path');
-const baseWebpackConfig = require('./webpack.base.conf');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
-const portfinder = require('portfinder');
+// 'use strict'; is the strict mode introduced in ECMAScript 5. It enforces stricter execution of code, reduces some errors and improves security.
 
-const HOST = process.env.HOST;
-const PORT = process.env.PORT && Number(process.env.PORT);
+// Import necessary modules
+const utils = require('./utils'); // Utility module
+const webpack = require('webpack'); // Webpack module
+const config = require('../config'); // Configuration module
+const merge = require('webpack-merge'); // Merge module, can merge multiple exported configuration objects into one
+const path = require('path'); // path: Provides methods for handling file paths
+const baseWebpackConfig = require('./webpack.base.conf'); // Import base Webpack configuration
+const CopyWebpackPlugin = require('copy-webpack-plugin'); // File copy module
+const HtmlWebpackPlugin = require('html-webpack-plugin'); // Generate HTML template module
+const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin'); // webpack error output plugin
+const portfinder = require('portfinder'); // Get tool module for unused ports
 
+const HOST = process.env.HOST; // Current system host
+const PORT = process.env.PORT && Number(process.env.PORT); // Current system port
+
+// Merge base Webpack configuration into this development environment Webpack configuration using merge().
 const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
+    // CSS style loader configuration
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap, usePostCSS: true })
   },
-  // cheap-module-eval-source-map is faster for development
+  // How Webpack generates source map
   devtool: config.dev.devtool,
 
-  // these devServer options should be customized in /config/index.js
+  // Configure web server 
   devServer: {
+    // Level of logging
     clientLogLevel: 'warning',
+    // history api fallback: When using HTML5 history API, any 404 response may need to be replaced with index.html (vue.js routing refresh issue)
     historyApiFallback: {
       rewrites: [
         { from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html') }
       ]
-    },
+    }, 
+    // Hot module replacement
     hot: true,
-    contentBase: false, // since we use CopyWebpackPlugin.
+    contentBase: false, 
+    // Whether to enable gzip compression
     compress: true,
+    // Domain name to bind to
     host: HOST || config.dev.host,
+    // Port number to use
     port: PORT || config.dev.port,
+    // Automatically open default browser
     open: config.dev.autoOpenBrowser,
     overlay: config.dev.errorOverlay
       ? { warnings: false, errors: true }
       : false,
     publicPath: config.dev.assetsPublicPath,
+    // Configure proxy to solve cross-domain issues
     proxy: config.dev.proxyTable,
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
+      // Monitor file modification time
       poll: config.dev.poll
     }
   },
+  // Define global variable
   plugins: [
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env')
     }),
+    // Hot reload module, realizes real-time update after code modification
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
+    // Webpack's named module plugin, uses the relative path of the module as the name,
+    // so that the current module's relative path can be seen in the Hot Module Replacement plugin.
+    new webpack.NamedModulesPlugin(), 
+    // If there is a compilation error, webpack will not terminate the task, but output error information.
     new webpack.NoEmitOnErrorsPlugin(),
-    // https://github.com/ampedandwired/html-webpack-plugin
+    // Auto generate HTML file
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'index.html',
       inject: true,
+      // Custom favicon icon
       favicon: path.resolve('favicon.ico')
     }),
-    // copy custom static assets
+    // Copy static resource files
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, '../static'),
@@ -69,15 +88,17 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   ]
 });
 
+// Return an empty Promise object
 module.exports = new Promise((resolve, reject) => {
+  // Set port number
   portfinder.basePort = process.env.PORT || config.dev.port;
   portfinder.getPort((err, port) => {
     if (err) {
       reject(err);
     } else {
-      // publish the new Port, necessary for e2e tests
+      // Assign the obtained port number to process.env.PORT
       process.env.PORT = port;
-      // add port to devServer config
+      // Assign the obtained port number to devWebpackConfig.devServer.port
       devWebpackConfig.devServer.port = port;
 
       // Add FriendlyErrorsPlugin
@@ -90,6 +111,7 @@ module.exports = new Promise((resolve, reject) => {
           : undefined
       }));
 
+      // Export configuration file
       resolve(devWebpackConfig);
     }
   });
