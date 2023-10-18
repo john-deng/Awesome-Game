@@ -4,17 +4,19 @@
 
 const path = require('path');
 
+const publicPath = '/app/' + process.env.POD_NAMESPACE + '/' + process.env.PROJECT_NAME + '/' + process.env.PORT || '/'
+
 module.exports = {
   dev: {
 
     // Paths
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath:  publicPath,
     proxyTable: {},
 
     // Various Dev Server settings
-    host: '0.0.0.0', // can be overwritten by process.env.HOST
-    port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    host: process.env.HOST || '0.0.0.0', // can be overwritten by process.env.HOST
+    port: process.env.PORT || 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
