@@ -26,6 +26,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
 
   // Configure web server 
   devServer: {
+    disableHostCheck: true,
     // Level of logging
     clientLogLevel: 'warning',
     // history api fallback: When using HTML5 history API, any 404 response may need to be replaced with index.html (vue.js routing refresh issue)
